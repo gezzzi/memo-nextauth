@@ -2,11 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { signIn, useSession } from "next-auth/react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 
 export default function SignInPage() {
-  const router = useRouter();
   const { status } = useSession();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/memos";
@@ -19,9 +18,9 @@ export default function SignInPage() {
   // セッションの状態が変わったときのリダイレクト
   useEffect(() => {
     if (status === "authenticated") {
-      router.push(callbackUrl);
+      window.location.href = callbackUrl;
     }
-  }, [status, router, callbackUrl]);
+  }, [status, callbackUrl]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,8 +40,10 @@ export default function SignInPage() {
 
       if (result?.error) {
         setError(`ログインに失敗しました: ${result.error}`);
+      } else if (result?.url) {
+        // 直接URLに遷移する（router.pushよりも確実）
+        window.location.href = result.url;
       }
-      // リダイレクトはuseEffectが処理するため、ここでは何もしない
     } catch (err) {
       console.error("ログイン例外:", err);
       setError("予期せぬエラーが発生しました。");
@@ -53,7 +54,7 @@ export default function SignInPage() {
 
   // すでにログイン済みの場合はリダイレクト
   if (status === "authenticated") {
-    return <div className="p-4 text-center">リダイレクト中...</div>;
+    return <div className="p-4 text-center">リダイレクト中...<br/><button onClick={() => window.location.href = callbackUrl} className="mt-4 px-4 py-2 bg-blue-500 text-white rounded">ここをクリックしてメモページに移動</button></div>;
   }
 
   return (
