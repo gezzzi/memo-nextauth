@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { registerUser } from "../auth/[...nextauth]/route";
+import { registerUser } from "../../../lib/auth-utils";
 
 export async function POST(request: NextRequest) {
   try {
