@@ -2,7 +2,7 @@ import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { AuthOptions } from "next-auth";
 
-// サンプルユーザー（実際の実装では、データベースに接続する必要があります）
+// サンプルユーザー（メモリ内ストレージ - サーバー再起動時にリセットされます）
 const users = [
   {
     id: "1",
@@ -11,6 +11,27 @@ const users = [
     password: "password123",
   },
 ];
+
+// 新規ユーザー登録関数（メモリ内配列に追加するだけ）
+export const registerUser = (name: string, email: string, password: string) => {
+  // メールアドレスが既に使用されているかチェック
+  const existingUser = users.find(user => user.email === email);
+  if (existingUser) {
+    return { success: false, error: "このメールアドレスは既に使用されています" };
+  }
+
+  // 新しいユーザーを追加
+  const newUser = {
+    id: (users.length + 1).toString(),
+    name,
+    email,
+    password,
+  };
+  
+  users.push(newUser);
+  
+  return { success: true, user: { id: newUser.id, name: newUser.name, email: newUser.email } };
+};
 
 export const authOptions: AuthOptions = {
   providers: [

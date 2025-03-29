@@ -18,21 +18,42 @@ export default function SignUpPage() {
     setIsLoading(true);
     setError("");
 
-    // 実際のアプリケーションでは、ここでユーザー登録APIを呼び出す
-    // 今回はサンプルユーザーのみ登録可能なため、ログインに直接遷移する
     try {
-      // 通常はここでユーザー登録APIを呼び出し、成功後にログイン
-      await signIn("credentials", {
+      // ユーザー登録APIを呼び出す
+      const registerResponse = await fetch("/api/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name, email, password }),
+      });
+
+      const registerData = await registerResponse.json();
+
+      if (!registerResponse.ok) {
+        setError(registerData.error || "登録に失敗しました");
+        setIsLoading(false);
+        return;
+      }
+
+      // 登録成功したら自動的にログイン
+      const signInResult = await signIn("credentials", {
         redirect: false,
         email,
         password,
       });
-      
-      router.push("/memos");
-      router.refresh();
+
+      if (signInResult?.error) {
+        setError("登録は成功しましたが、自動ログインに失敗しました。ログインページからログインしてください。");
+        router.push("/sign-in");
+      } else {
+        // ログイン成功
+        router.push("/memos");
+        router.refresh();
+      }
     } catch (err) {
-      setError("登録に失敗しました。もう一度お試しください。");
-      console.error(err);
+      console.error("登録処理中のエラー:", err);
+      setError("登録処理中にエラーが発生しました。もう一度お試しください。");
     } finally {
       setIsLoading(false);
     }
@@ -93,6 +114,7 @@ export default function SignUpPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              minLength={6}
               required
             />
           </div>
