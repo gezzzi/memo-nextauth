@@ -130,7 +130,7 @@ export default function SignUpPage() {
         <div className="mt-6 text-center">
           <p className="text-sm text-slate-500">
             すでにアカウントをお持ちですか？{" "}
-            <a href="/sign-in" className="text-blue-600 hover:underline">
+            <a href="https://memo-nextauth.vercel.app/sign-in" className="text-blue-600 hover:underline">
               ログイン
             </a>
           </p>

@@ -4,7 +4,6 @@ import { useState } from "react";
 import { signIn, useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
-import Link from "next/link";
 
 export default function SignInPage() {
   const { status } = useSession();
@@ -55,12 +54,12 @@ export default function SignInPage() {
       <div className="p-8 text-center">
         <h2 className="text-xl font-bold mb-4">ログインしました</h2>
         <p className="mb-4">既にログイン済みです。メモページに移動してください。</p>
-        <Link 
-          href="/memos" 
+        <a 
+          href="https://memo-nextauth.vercel.app/memos"
           className="inline-block px-6 py-3 bg-blue-500 text-white rounded hover:bg-blue-600"
         >
           メモページへ移動
-        </Link>
+        </a>
       </div>
     );
   }
@@ -125,7 +124,7 @@ export default function SignInPage() {
         <div className="mt-6 text-center">
           <p className="text-sm text-slate-500">
             アカウントをお持ちでないですか？{" "}
-            <a href="/sign-up" className="text-blue-600 hover:underline">
+            <a href="https://memo-nextauth.vercel.app/sign-up" className="text-blue-600 hover:underline">
               新規登録
             </a>
           </p>
