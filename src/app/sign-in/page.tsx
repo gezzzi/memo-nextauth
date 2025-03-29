@@ -1,16 +1,27 @@
 "use client";
 
-import { useState } from "react";
-import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { signIn, useSession } from "next-auth/react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 
 export default function SignInPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const { status } = useSession();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/memos";
+  
+  const [email, setEmail] = useState("test@example.com");  // 検証用にデフォルト値を設定
+  const [password, setPassword] = useState("password123"); // 検証用にデフォルト値を設定
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  // セッションの状態が変わったときのリダイレクト
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.push(callbackUrl);
+    }
+  }, [status, router, callbackUrl]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,25 +29,32 @@ export default function SignInPage() {
     setError("");
 
     try {
+      console.log("ログイン試行:", { email, callbackUrl });
+      
       const result = await signIn("credentials", {
         redirect: false,
         email,
         password,
       });
 
+      console.log("ログイン結果:", result);
+
       if (result?.error) {
-        setError("ログインに失敗しました。メールアドレスとパスワードを確認してください。");
-      } else {
-        router.push("/memos");
-        router.refresh();
+        setError(`ログインに失敗しました: ${result.error}`);
       }
+      // リダイレクトはuseEffectが処理するため、ここでは何もしない
     } catch (err) {
+      console.error("ログイン例外:", err);
       setError("予期せぬエラーが発生しました。");
-      console.error(err);
     } finally {
       setIsLoading(false);
     }
   };
+
+  // すでにログイン済みの場合はリダイレクト
+  if (status === "authenticated") {
+    return <div className="p-4 text-center">リダイレクト中...</div>;
+  }
 
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
@@ -49,6 +67,9 @@ export default function SignInPage() {
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold">ログイン</h1>
           <p className="mt-2 text-slate-500">アカウントにログインしてメモを管理しましょう</p>
+          <p className="mt-2 text-blue-500">
+            テスト用アカウント: test@example.com / password123
+          </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
