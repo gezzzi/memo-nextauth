@@ -1,11 +1,11 @@
 import { redirect } from "next/navigation";
-import { currentUser } from "@clerk/nextjs/server";
+import { getServerSession } from "next-auth";
 import NewMemoForm from "@/components/NewMemoForm";
 
 export default async function NewMemoPage() {
-  const user = await currentUser();
+  const session = await getServerSession();
   
-  if (!user) {
+  if (!session) {
     redirect("/sign-in");
   }
 

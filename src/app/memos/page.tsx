@@ -1,17 +1,20 @@
 import { redirect } from "next/navigation";
-import { currentUser } from "@clerk/nextjs/server";
+import { getServerSession } from "next-auth";
 import MemosList from "../../components/MemosList";
 
 export default async function MemosPage() {
-  const user = await currentUser();
+  const session = await getServerSession();
   
-  if (!user) {
+  if (!session) {
     redirect("/sign-in");
   }
 
   return (
     <MemosList 
-      user={{ firstName: user.firstName, username: user.username }} 
+      user={{ 
+        firstName: session.user?.name?.split(' ')[0] || null, 
+        username: session.user?.email || null 
+      }} 
     />
   );
 } 

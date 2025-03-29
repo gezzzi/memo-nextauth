@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { currentUser } from "@clerk/nextjs/server";
+import { getServerSession } from "next-auth";
 import MemoEdit from "../../../../components/MemoEdit";
 
 // 仮のメモデータ
@@ -13,9 +13,9 @@ export default async function EditMemoPage(props: {
   params: Promise<{ id: string }>
 }) {
   const params = await props.params;
-  const user = await currentUser();
+  const session = await getServerSession();
   
-  if (!user) {
+  if (!session) {
     redirect("/sign-in");
   }
 

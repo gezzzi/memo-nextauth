@@ -1,14 +1,14 @@
 import { redirect } from "next/navigation";
-import { currentUser } from "@clerk/nextjs/server";
+import { getServerSession } from "next-auth";
 import MemoDetail from "../../../components/MemoDetail";
 
 export default async function MemoDetailPage(props: {
   params: Promise<{ id: string }>
 }) {
   const params = await props.params;
-  const user = await currentUser();
+  const session = await getServerSession();
   
-  if (!user) {
+  if (!session) {
     redirect("/sign-in");
   }
 
