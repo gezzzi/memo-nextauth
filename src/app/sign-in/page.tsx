@@ -1,26 +1,20 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { signIn, useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 export default function SignInPage() {
   const { status } = useSession();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/memos";
   
-  const [email, setEmail] = useState("test@example.com");  // 検証用にデフォルト値を設定
-  const [password, setPassword] = useState("password123"); // 検証用にデフォルト値を設定
+  const [email, setEmail] = useState("test@example.com");
+  const [password, setPassword] = useState("password123");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-
-  // セッションの状態が変わったときのリダイレクト
-  useEffect(() => {
-    if (status === "authenticated") {
-      window.location.href = callbackUrl;
-    }
-  }, [status, callbackUrl]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,8 +35,11 @@ export default function SignInPage() {
       if (result?.error) {
         setError(`ログインに失敗しました: ${result.error}`);
       } else if (result?.url) {
-        // 直接URLに遷移する（router.pushよりも確実）
-        window.location.href = result.url;
+        // 直接URLに遷移する
+        window.location.replace(result.url);
+      } else {
+        // URLがない場合はデフォルトのコールバックURLへ
+        window.location.replace(callbackUrl);
       }
     } catch (err) {
       console.error("ログイン例外:", err);
@@ -52,9 +49,20 @@ export default function SignInPage() {
     }
   };
 
-  // すでにログイン済みの場合はリダイレクト
+  // すでにログイン済みの場合はボタンを表示
   if (status === "authenticated") {
-    return <div className="p-4 text-center">リダイレクト中...<br/><button onClick={() => window.location.href = callbackUrl} className="mt-4 px-4 py-2 bg-blue-500 text-white rounded">ここをクリックしてメモページに移動</button></div>;
+    return (
+      <div className="p-8 text-center">
+        <h2 className="text-xl font-bold mb-4">ログインしました</h2>
+        <p className="mb-4">既にログイン済みです。メモページに移動してください。</p>
+        <Link 
+          href="/memos" 
+          className="inline-block px-6 py-3 bg-blue-500 text-white rounded hover:bg-blue-600"
+        >
+          メモページへ移動
+        </Link>
+      </div>
+    );
   }
 
   return (
